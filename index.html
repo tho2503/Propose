@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Cầu hôn</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        background: black;
+        color: white;
+        font-family: sans-serif;
+        text-align: center;
+      }
+
+      .message {
+        position: absolute;
+        top: 40%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 2em;
+        z-index: 10;
+        opacity: 0;
+        transition: opacity 1s;
+      }
+
+      .question {
+        display: none;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 2em;
+        z-index: 10;
+      }
+
+      .buttons {
+        margin-top: 20px;
+      }
+
+      button {
+        padding: 10px 20px;
+        font-size: 1.2em;
+        margin: 0 10px;
+        cursor: pointer;
+      }
+
+      .falling {
+        position: absolute;
+        top: -100px;
+        width: 200px;
+        height: 200px;
+        object-fit: cover;
+        animation: fall linear;
+        border-radius: 6px;
+      }
+      @keyframes fall {
+        from {
+          transform: translateY(-100px);
+        }
+        to {
+          transform: translateY(110vh);
+        }
+      }
+
+      .cat-video {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: black;
+        z-index: 30;
+        align-items: center;
+        justify-content: center;
+      }
+      .cat-video video {
+        max-width: 100%;
+        max-height: 100%;
+      }
+
+      .thankyou {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: url("https://files.catbox.moe/v8ozjj.jpg") center/cover
+          no-repeat;
+        color: white;
+        font-size: 3em;
+        align-items: center;
+        justify-content: center;
+        text-shadow: 2px 2px 6px black;
+        z-index: 20;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="message" id="message"></div>
+
+    <div class="question">
+      Em đồng ý làm vợ anh chứ? 💍
+      <div class="buttons">
+        <button id="yesBtn">Đồng ý ❤️</button>
+        <button id="noBtn">Không 😢</button>
+      </div>
+    </div>
+
+    <div class="cat-video" id="catVideo">
+      <video id="catClip" autoplay>
+        <source src="https://files.catbox.moe/lex7oc.mp4" type="video/mp4" />
+        Trình duyệt không hỗ trợ video.
+      </video>
+    </div>
+
+    <div class="thankyou">Cảm ơn em! Anh yêu em ❤️</div>
+
+    <script>
+      const images = [
+        "https://picsum.photos/seed/a/100",
+        "https://picsum.photos/seed/b/100",
+        "https://picsum.photos/seed/c/100",
+      ];
+
+      const numCols = 5; // chia màn hình thành 8 cột
+      const colWidth = window.innerWidth / numCols;
+      const lastSpawnTime = new Array(numCols).fill(0);
+      const minInterval = 4000; // ms, khoảng cách tối thiểu giữa 2 hình cùng 1 cột
+      const fallDuration = 6000; // ms, tốc độ rơi đồng nhất
+
+      function spawnImage() {
+        let col;
+        let now = Date.now();
+
+        // tìm cột hợp lệ (chưa spawn gần đây)
+        do {
+          col = Math.floor(Math.random() * numCols);
+        } while (now - lastSpawnTime[col] < minInterval);
+
+        lastSpawnTime[col] = now;
+
+        const img = document.createElement("img");
+        img.src = images[Math.floor(Math.random() * images.length)];
+        img.className = "falling";
+        img.style.left = col * colWidth + colWidth / 2 - 40 + "px"; // căn giữa cột
+        img.style.animationDuration = fallDuration + "ms";
+
+        document.body.appendChild(img);
+
+        // remove sau khi rơi xong
+        setTimeout(() => img.remove(), fallDuration);
+      }
+
+      setInterval(spawnImage, 1000); // spawn liên tục
+
+      /* Thông điệp lần lượt */
+      const messages = [
+        "Anh có điều này muốn nói...",
+        "Từ ngày gặp em, cuộc sống anh thay đổi rất nhiều...",
+        "Anh chỉ muốn một điều duy nhất...",
+      ];
+      let msgIndex = 0;
+      const msgEl = document.getElementById("message");
+
+      function showNextMessage() {
+        if (msgIndex < messages.length) {
+          msgEl.textContent = messages[msgIndex];
+          msgEl.style.opacity = 1;
+          setTimeout(() => {
+            msgEl.style.opacity = 0;
+            msgIndex++;
+            setTimeout(showNextMessage, 1500);
+          }, 2500);
+        } else {
+          document.querySelector(".question").style.display = "block";
+        }
+      }
+      setTimeout(showNextMessage, 3000);
+
+      /* Nút */
+      const yesBtn = document.getElementById("yesBtn");
+      const noBtn = document.getElementById("noBtn");
+      const thankyou = document.querySelector(".thankyou");
+      const catVideo = document.getElementById("catVideo");
+      const catClip = document.getElementById("catClip");
+
+      yesBtn.onclick = () => {
+        document.querySelector(".question").style.display = "none";
+        catVideo.style.display = "flex"; // show clip mèo
+        catClip.play();
+      };
+
+      // khi clip mèo kết thúc -> hiện thankyou
+      catClip.onended = () => {
+        catVideo.style.display = "none";
+        thankyou.style.display = "flex";
+      };
+
+      noBtn.onclick = () => {
+        alert("Anh sẽ đợi đến khi em đổi ý 😢");
+      };
+    </script>
+  </body>
+</html>
