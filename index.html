@@ -111,9 +111,14 @@
     </div>
 
     <div class="cat-video" id="catVideo">
-      <video id="catClip" autoplay>
-        <source src="https://files.catbox.moe/lex7oc.mp4" type="video/mp4" />
-        Trình duyệt không hỗ trợ video.
+      <video
+        id="introVideo"
+        playsinline
+        webkit-playsinline
+        muted
+        preload="auto"
+      >
+        <source src="kiss.mp4" type="video/mp4" />
       </video>
     </div>
 
@@ -121,9 +126,48 @@
 
     <script>
       const images = [
-        "https://picsum.photos/seed/a/100",
-        "https://picsum.photos/seed/b/100",
-        "https://picsum.photos/seed/c/100",
+        "assets/Image (1).jfif",
+        "assets/Image (2).jfif",
+        "assets/Image (3).jfif",
+        "assets/Image (4).jfif",
+        "assets/Image (5).jfif",
+        "assets/Image (6).jfif",
+        "assets/Image (7).jfif",
+        "assets/Image (8).jfif",
+        "assets/Image (9).jfif",
+        "assets/Image (10).jfif",
+        "assets/Image (11).jfif",
+        "assets/Image (12).jfif",
+        "assets/Image (13).jfif",
+        "assets/Image (14).jfif",
+        "assets/Image (15).jfif",
+        "assets/Image (16).jfif",
+        "assets/Image (17).jfif",
+        "assets/Image (18).jfif",
+        "assets/Image (19).jfif",
+        "assets/Image (20).jfif",
+        "assets/Image (21).jfif",
+        "assets/Image (22).jfif",
+        "assets/Image (23).jfif",
+        "assets/Image (24).jfif",
+        "assets/Image (25).jfif",
+        "assets/Image (26).jfif",
+        "assets/Image (27).jfif",
+        "assets/Image (28).jfif",
+        "assets/Image (29).jfif",
+        "assets/Image (30).jfif",
+        "assets/Image (31).jfif",
+        "assets/Image (32).jfif",
+        "assets/Image (33).jfif",
+        "assets/Image (34).jfif",
+        "assets/Image (35).jfif",
+        "assets/Image (36).jfif",
+        "assets/Image (37).jfif",
+        "assets/Image (38).jfif",
+        "assets/Image (39).jfif",
+        "assets/Image (40).jfif",
+        "assets/Image (41).jfif",
+        "assets/Image.jfif",
       ];
 
       const numCols = 5; // chia màn hình thành 8 cột
@@ -159,8 +203,14 @@
 
       /* Thông điệp lần lượt */
       const messages = [
-        "Anh có điều này muốn nói...",
-        "Từ ngày gặp em, cuộc sống anh thay đổi rất nhiều...",
+        "He lô em, là anh quàng từ meo của em đây",
+        "Trước đây, lúc chưa gặp em",
+        "Cuộc đời anh chỉ toàn là drama và tiêu cực",
+        "Từ ngày gặp được em, được trải nghiệm và đi nhiều nơi cùng em",
+        "Các bức hình em đang thấy là những khoảnh khắc anh và em đã cùng nhau trải qua",
+        "Đoạn đường mình đi cũng đủ dài rồi, nhưng anh vẫn để em đợi 1 happy ending",
+        "Anh biết để em có cảm giác mình phải đi hối anh cầu hôn là không đúng",
+        "Anh pé xin lỗi vì đã để em phải chờ đợi",
         "Anh chỉ muốn một điều duy nhất...",
       ];
       let msgIndex = 0;
@@ -179,7 +229,7 @@
           document.querySelector(".question").style.display = "block";
         }
       }
-      setTimeout(showNextMessage, 3000);
+      setTimeout(showNextMessage, 7000);
 
       /* Nút */
       const yesBtn = document.getElementById("yesBtn");
@@ -191,6 +241,8 @@
       yesBtn.onclick = () => {
         document.querySelector(".question").style.display = "none";
         catVideo.style.display = "flex"; // show clip mèo
+        catClip.muted = false; // bật tiếng
+        catClip.currentTime = 0; // tua lại từ đầu
         catClip.play();
       };
 
