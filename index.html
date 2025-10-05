@@ -10,7 +10,9 @@
         overflow: hidden;
         background: black;
         color: white;
-        font-family: sans-serif;
+        /* prefer emoji-capable fonts so emojis render correctly */
+        font-family: "Segoe UI Emoji", "Noto Color Emoji", "Apple Color Emoji",
+          "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
         text-align: center;
       }
 
@@ -31,8 +33,67 @@
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        font-size: 2em;
+        font-size: 1.6em;
+        text-align: center;
+        color: #fff;
+        padding: 35px 45px;
+        border-radius: 25px;
+        background: linear-gradient(145deg, #1e1e2f, #2a2a3d);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6),
+          0 0 20px rgba(255, 100, 200, 0.3), 0 0 40px rgba(100, 150, 255, 0.2);
+        border: 2px solid rgba(255, 255, 255, 0.1);
+        animation: popupFade 0.5s ease forwards;
         z-index: 10;
+      }
+
+      @keyframes popupFade {
+        from {
+          transform: translate(-50%, -50%) scale(0.7);
+          opacity: 0;
+        }
+        to {
+          transform: translate(-50%, -50%) scale(1);
+          opacity: 1;
+        }
+      }
+
+      .buttons {
+        margin-top: 25px;
+        display: flex;
+        gap: 25px;
+        justify-content: center;
+      }
+
+      button {
+        font-size: 1.2em;
+        padding: 14px 28px;
+        border: none;
+        border-radius: 14px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: bold;
+      }
+
+      #yesBtn {
+        background: linear-gradient(45deg, #ffd54f, #ffb300); /* warm yellow */
+        color: #1a1a1a;
+        box-shadow: 0 6px 15px rgba(255, 179, 0, 0.25);
+      }
+
+      #yesBtn:hover {
+        transform: scale(1.08) rotate(-1.5deg);
+        box-shadow: 0 8px 22px rgba(255, 179, 0, 0.32);
+      }
+
+      #noBtn {
+        background: linear-gradient(45deg, #bfe9ff, #9fd6ff); /* pastel blue */
+        color: #06283d;
+        box-shadow: 0 6px 15px rgba(30, 120, 200, 0.12);
+      }
+
+      #noBtn:hover {
+        transform: scale(1.08) rotate(1.5deg);
+        box-shadow: 0 8px 22px rgba(30, 120, 200, 0.2);
       }
 
       .buttons {
@@ -48,19 +109,32 @@
 
       .falling {
         position: absolute;
-        top: -100px;
+        /* keep top at 0 and use transform for vertical movement only — avoids layout jumps */
+        top: 0;
         width: 200px;
         height: 200px;
         object-fit: cover;
-        animation: fall linear;
         border-radius: 6px;
+        overflow: hidden; /* ensure inner img is clipped to rounded corners */
+        /* hint the browser we will animate transform for smoother rendering */
+        will-change: transform;
+        /* default transform keeps pooled elements off-screen until activated */
+        transform: translate3d(var(--tx, 0px), -250px, 0);
+        backface-visibility: hidden;
+        /* animation properties — duration is set inline from JS so we only specify name/timing/fill here */
+        animation-name: fall;
+        animation-timing-function: linear;
+        animation-fill-mode: forwards; /* keep final state until element is removed */
       }
+
       @keyframes fall {
+        /* use translate3d + scale to favor GPU compositing and reduce subpixel wobble;
+           scale is driven by --s so we avoid changing layout when size varies */
         from {
-          transform: translateY(-100px);
+          transform: translate3d(var(--tx, 0px), -250px, 0);
         }
         to {
-          transform: translateY(110vh);
+          transform: translate3d(var(--tx, 0px), calc(100vh + 300px), 0);
         }
       }
 
@@ -88,8 +162,7 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background: url("https://files.catbox.moe/v8ozjj.jpg") center/cover
-          no-repeat;
+        background: url("assets/cat-flower.jpg") center/cover no-repeat;
         color: white;
         font-size: 3em;
         align-items: center;
@@ -103,10 +176,10 @@
     <div class="message" id="message"></div>
 
     <div class="question">
-      Em đồng ý làm vợ anh chứ? 💍
+      Em cưới anh nhoe 🧎
       <div class="buttons">
-        <button id="yesBtn">Đồng ý ❤️</button>
-        <button id="noBtn">Không 😢</button>
+        <button id="yesBtn">Em có</button>
+        <button id="noBtn">Em kó</button>
       </div>
     </div>
 
@@ -118,11 +191,11 @@
         muted
         preload="auto"
       >
-        <source src="kiss.mp4" type="video/mp4" />
+        <source src="assets/cat.mp4" type="video/mp4" />
       </video>
     </div>
 
-    <div class="thankyou">Cảm ơn em! Anh yêu em ❤️</div>
+    <div class="thankyou">Vậy thì em quay lưng lại đi 💙💛💜</div>
 
     <script>
       const images = [
@@ -171,47 +244,435 @@
       ];
 
       const numCols = 5; // chia màn hình thành 8 cột
-      const colWidth = window.innerWidth / numCols;
+      let colWidth = window.innerWidth / numCols;
+      // recalc on resize
+      window.addEventListener("resize", () => {
+        colWidth = window.innerWidth / numCols;
+      });
       const lastSpawnTime = new Array(numCols).fill(0);
       const minInterval = 4000; // ms, khoảng cách tối thiểu giữa 2 hình cùng 1 cột
       const fallDuration = 6000; // ms, tốc độ rơi đồng nhất
+
+      // preload images to avoid decoding work at spawn time
+      // try to use createImageBitmap (best) and fall back to Image elements
+      const bitmaps = [];
+      const preloaded = images.map((src) => {
+        const i = new Image();
+        i.src = src;
+        i.decoding = "async";
+        return i;
+      });
+
+      const useCanvasRenderer = !!window.createImageBitmap;
+      if (useCanvasRenderer) {
+        // queued, downscaled ImageBitmap creation to avoid GPU upload spikes
+        // targetMaxBitmapSize should match or slightly exceed maximum particle size
+        const targetMaxBitmapSize = 256; // px
+        const bitmapQueue = [];
+        let creatingBitmap = false;
+
+        function createDownscaledBitmap(img) {
+          // prefer native resizing in createImageBitmap if supported
+          if (typeof createImageBitmap === "function") {
+            try {
+              const w = Math.min(
+                targetMaxBitmapSize,
+                img.naturalWidth || img.width
+              );
+              const h = Math.min(
+                targetMaxBitmapSize,
+                img.naturalHeight || img.height
+              );
+              // try with resize options (may throw if not supported)
+              return createImageBitmap(img, {
+                resizeWidth: w,
+                resizeHeight: h,
+                resizeQuality: "high",
+              });
+            } catch (e) {
+              // fallback to drawing into an offscreen canvas below
+            }
+          }
+          // fallback path: draw to an offscreen canvas then createImageBitmap (or return canvas)
+          return new Promise((resolve, reject) => {
+            try {
+              const ow = Math.min(
+                targetMaxBitmapSize,
+                img.naturalWidth || img.width
+              );
+              const oh = Math.min(
+                targetMaxBitmapSize,
+                img.naturalHeight || img.height
+              );
+              const c = document.createElement("canvas");
+              c.width = ow;
+              c.height = oh;
+              const cctx = c.getContext("2d");
+              // draw image scaled to target size
+              cctx.drawImage(img, 0, 0, ow, oh);
+              // use createImageBitmap from canvas if available, else resolve with canvas as fallback
+              if (typeof createImageBitmap === "function") {
+                createImageBitmap(c)
+                  .then(resolve)
+                  .catch(() => resolve(c));
+              } else {
+                resolve(c);
+              }
+            } catch (err) {
+              reject(err);
+            }
+          });
+        }
+
+        function processQueue() {
+          if (creatingBitmap) return;
+          const job = bitmapQueue.shift();
+          if (!job) return;
+          creatingBitmap = true;
+          createDownscaledBitmap(job.img)
+            .then((bmpOrCanvas) => {
+              // store either ImageBitmap or canvas (drawImage accepts both)
+              bitmaps.push(bmpOrCanvas);
+            })
+            .catch(() => {
+              // ignore failures
+            })
+            .finally(() => {
+              creatingBitmap = false;
+              // schedule next creation a bit later to avoid burst
+              setTimeout(processQueue, 60);
+            });
+        }
+
+        // enqueue create jobs when images load (but don't create immediately all at once)
+        preloaded.forEach((img) => {
+          img.onload = () => {
+            bitmapQueue.push({ img });
+            // try to kick off one job
+            setTimeout(processQueue, 0);
+          };
+        });
+      }
+
+      // Canvas renderer setup (used when createImageBitmap is available)
+      let canvas, ctx, particles;
+      if (useCanvasRenderer) {
+        canvas = document.createElement("canvas");
+        canvas.style.position = "fixed";
+        canvas.style.left = "0";
+        canvas.style.top = "0";
+        canvas.style.width = "100%";
+        canvas.style.height = "100%";
+        canvas.style.zIndex = "2";
+        canvas.style.pointerEvents = "none";
+        document.body.appendChild(canvas);
+        ctx = canvas.getContext("2d");
+        function resizeCanvas() {
+          // cap DPR to 1 to avoid huge textures which can cause driver stalls
+          const dpr = Math.min(1, window.devicePixelRatio || 1);
+          canvas.width = Math.round(window.innerWidth * dpr);
+          canvas.height = Math.round(window.innerHeight * dpr);
+          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        }
+        resizeCanvas();
+        window.addEventListener("resize", resizeCanvas);
+        particles = [];
+
+        // render loop for canvas particles
+        (function renderLoop() {
+          if (!ctx) return requestAnimationFrame(renderLoop);
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          const now = performance.now();
+          for (let i = particles.length - 1; i >= 0; i--) {
+            const p = particles[i];
+            const t = (now - p.start) / p.dur;
+            if (t >= 1) {
+              particles.splice(i, 1);
+              continue;
+            }
+            const y = p.startY + (p.endY - p.startY) * t;
+            const s = p.size;
+            // draw centered using absolute size (no scaling)
+            const w = s;
+            const h = s;
+            ctx.save();
+            ctx.translate(p.x + w / 2, y + h / 2);
+            ctx.rotate(p.rotate);
+            ctx.globalAlpha = p.alpha;
+            // preserve aspect ratio and center-crop the bitmap into the target square (object-fit: cover)
+            const src = p.bitmap;
+            let sw = src.width || src.videoWidth || src.naturalWidth || w;
+            let sh = src.height || src.videoHeight || src.naturalHeight || h;
+            // compute scale to cover the square
+            const scale = Math.max(w / sw, h / sh);
+            const dw = sw * scale;
+            const dh = sh * scale;
+            // compute source crop in source-space
+            const sx = Math.max(0, (dw - w) / 2 / scale);
+            const sy = Math.max(0, (dh - h) / 2 / scale);
+            const ssw = Math.max(1, sw - sx * 2);
+            const ssh = Math.max(1, sh - sy * 2);
+            // rounded-rect clipping so canvas particles have rounded corners
+            const radius = Math.min(12, Math.round(Math.min(w, h) * 0.08));
+            ctx.beginPath();
+            const rw = -w / 2;
+            const rh = -h / 2;
+            ctx.moveTo(rw + radius, rh);
+            ctx.lineTo(rw + w - radius, rh);
+            ctx.quadraticCurveTo(rw + w, rh, rw + w, rh + radius);
+            ctx.lineTo(rw + w, rh + h - radius);
+            ctx.quadraticCurveTo(rw + w, rh + h, rw + w - radius, rh + h);
+            ctx.lineTo(rw + radius, rh + h);
+            ctx.quadraticCurveTo(rw, rh + h, rw, rh + h - radius);
+            ctx.lineTo(rw, rh + radius);
+            ctx.quadraticCurveTo(rw, rh, rw + radius, rh);
+            ctx.closePath();
+            ctx.clip();
+            // drawImage(source, sx, sy, ssw, ssh, dx, dy, dw, dh)
+            ctx.drawImage(src, sx, sy, ssw, ssh, -w / 2, -h / 2, w, h);
+            ctx.restore();
+          }
+          requestAnimationFrame(renderLoop);
+        })();
+      }
+
+      // cap concurrent falling images to avoid spikes
+      let activeCount = 0;
+      let maxActive = 9; // reduce default concurrency further (mutable for auto-throttle)
+
+      // create a pool of reusable falling elements to avoid allocations/GC spikes
+      const pool = [];
+      for (let i = 0; i < maxActive; i++) {
+        const wrapper = document.createElement("div");
+        wrapper.className = "falling";
+        wrapper.style.visibility = "hidden";
+        wrapper.dataset.inUse = "0";
+        // inner img uses a preloaded source (we'll swap src when activated)
+        const imgEl = document.createElement("img");
+        imgEl.style.width = "100%";
+        imgEl.style.height = "100%";
+        imgEl.style.objectFit = "cover";
+        imgEl.draggable = false;
+        wrapper.appendChild(imgEl);
+        // when animation ends, mark free
+        wrapper.addEventListener("animationend", () => {
+          wrapper.style.visibility = "hidden";
+          wrapper.dataset.inUse = "0";
+          activeCount = Math.max(0, activeCount - 1);
+          // clear inline animation so next activation can restart cleanly
+          wrapper.style.animation = "none";
+        });
+        document.body.appendChild(wrapper);
+        pool.push(wrapper);
+      }
+
+      function getFreeFromPool() {
+        for (const p of pool) if (p.dataset.inUse === "0") return p;
+        return null;
+      }
 
       function spawnImage() {
         let col;
         let now = Date.now();
 
         // tìm cột hợp lệ (chưa spawn gần đây)
+        let attempts = 0;
         do {
           col = Math.floor(Math.random() * numCols);
+          attempts++;
+          if (attempts > 10) break; // fail-safe
         } while (now - lastSpawnTime[col] < minInterval);
 
+        // respect max concurrent falling images
+        if (activeCount >= maxActive) return;
         lastSpawnTime[col] = now;
 
-        const img = document.createElement("img");
-        img.src = images[Math.floor(Math.random() * images.length)];
-        img.className = "falling";
-        img.style.left = col * colWidth + colWidth / 2 - 40 + "px"; // căn giữa cột
-        img.style.animationDuration = fallDuration + "ms";
+        const wrapper = getFreeFromPool();
+        if (!wrapper) return; // pool exhausted
 
-        document.body.appendChild(img);
+        // choose image src (preloaded) and either push a canvas particle or use DOM fallback
+        const idx = Math.floor(Math.random() * preloaded.length);
+        const base = preloaded[idx];
 
-        // remove sau khi rơi xong
-        setTimeout(() => img.remove(), fallDuration);
+        // compute base size and scaled size (use for both canvas and DOM)
+        const size = 200;
+        const x = Math.round(col * colWidth + colWidth / 2 - size / 2);
+        const dur = fallDuration + Math.floor(Math.random() * 1200) - 600;
+
+        if (useCanvasRenderer && bitmaps.length > 0) {
+          // pick a bitmap if available
+          const bmp = bitmaps[idx % bitmaps.length] || bitmaps[0];
+          const startY = -250;
+          const endY = window.innerHeight + 300;
+          // limit particles to avoid overload
+          if (particles.length >= Math.max(6, Math.floor(maxActive * 1.5)))
+            return;
+          particles.push({
+            bitmap: bmp,
+            start: performance.now(),
+            dur,
+            startY,
+            endY,
+            x,
+            size,
+            alpha: 1,
+            rotate: (Math.random() - 0.5) * 0.3,
+          });
+          return;
+        }
+
+        // DOM fallback: assign to wrapper's inner img
+        const imgEl = wrapper.querySelector("img");
+        imgEl.src = base.src;
+        imgEl.style.borderRadius = 10 + "px";
+        // position via CSS variable and set absolute size (no scale to avoid distortion)
+        wrapper.style.width = size + "px";
+        wrapper.style.height = size + "px";
+        wrapper.style.setProperty("--tx", x + "px");
+        wrapper.style.animation = "none";
+
+        // mark in-use
+        wrapper.dataset.inUse = "1";
+        wrapper.style.willChange = "transform";
+        activeCount++;
+
+        // start animation using Web Animations API for finer control
+        wrapper.style.visibility = "visible";
+        const startY = -250;
+        const endY = window.innerHeight + 300;
+        // ensure any previous animation is cancelled
+        if (wrapper._anim) wrapper._anim.cancel();
+        wrapper._anim = wrapper.animate(
+          [
+            { transform: `translate3d(var(--tx, 0px), ${startY}px, 0)` },
+            { transform: `translate3d(var(--tx, 0px), ${endY}px, 0)` },
+          ],
+          {
+            duration: dur,
+            easing: "linear",
+            fill: "forwards",
+          }
+        );
+        wrapper._anim.onfinish = () => {
+          wrapper.style.visibility = "hidden";
+          wrapper.dataset.inUse = "0";
+          activeCount = Math.max(0, activeCount - 1);
+          wrapper._anim = null;
+        };
       }
 
-      setInterval(spawnImage, 1000); // spawn liên tục
+      // free bitmaps on unload to release GPU memory
+      window.addEventListener("unload", () => {
+        if (bitmaps && bitmaps.length) {
+          for (const b of bitmaps)
+            try {
+              b.close && b.close();
+            } catch (e) {}
+        }
+      });
+
+      // adaptive spawn scheduler using timeouts so we can pause/reschedule quickly
+      let spawnInterval = 1500;
+      let spawnTimerId = null;
+      let pausedUntil = 0;
+      let sizeScale = 1.0; // scales image size when throttled
+
+      function scheduleNextSpawn(delay) {
+        if (spawnTimerId) clearTimeout(spawnTimerId);
+        spawnTimerId = setTimeout(() => {
+          const now = performance.now();
+          if (now < pausedUntil) {
+            scheduleNextSpawn(Math.max(200, pausedUntil - now));
+            return;
+          }
+          if (
+            !(activeCount > Math.floor(maxActive * 0.7) && Math.random() < 0.75)
+          ) {
+            spawnImage();
+          }
+          scheduleNextSpawn(spawnInterval);
+        }, delay || spawnInterval);
+      }
+      scheduleNextSpawn(0);
+
+      // lightweight profiler + auto-throttle
+      const stats = { fps: 60, active: 0, longTask: 0 };
+      let lastTime = performance.now();
+      let frames = 0;
+      function rafTick(now) {
+        frames++;
+        const dt = now - lastTime;
+        if (dt >= 1000) {
+          stats.fps = Math.round((frames * 1000) / dt);
+          frames = 0;
+          lastTime = now;
+          stats.active = activeCount;
+          // auto-throttle behavior (more aggressive):
+          if (stats.fps < 35 && stats.fps >= 25) {
+            // mild throttle: reduce concurrency slightly and increase interval
+            maxActive = Math.max(6, Math.floor(maxActive * 0.85));
+            spawnInterval = Math.min(2200, Math.floor(spawnInterval * 1.15));
+            sizeScale = Math.max(0.85, sizeScale * 0.95);
+            scheduleNextSpawn(spawnInterval);
+          } else if (stats.fps < 25 && stats.fps >= 15) {
+            // stronger throttle
+            maxActive = Math.max(4, Math.floor(maxActive * 0.8));
+            spawnInterval = Math.min(2600, Math.floor(spawnInterval * 1.25));
+            sizeScale = Math.max(0.7, sizeScale * 0.85);
+            // pause briefly to let system recover
+            pausedUntil = performance.now() + 800;
+            scheduleNextSpawn(800);
+          } else if (stats.fps < 15) {
+            // emergency: pause spawning for a short window and shrink sizes
+            pausedUntil = performance.now() + 1400;
+            maxActive = Math.max(3, Math.floor(maxActive * 0.6));
+            spawnInterval = Math.min(3000, Math.floor(spawnInterval * 1.4));
+            sizeScale = Math.max(0.5, sizeScale * 0.7);
+            scheduleNextSpawn(1400);
+          } else {
+            // when healthy, slowly recover parameters toward defaults
+            maxActive = Math.min(12, Math.ceil(maxActive * 1.02));
+            spawnInterval = Math.max(1200, Math.floor(spawnInterval * 0.98));
+            sizeScale = Math.min(1.0, sizeScale * 1.02);
+          }
+        }
+        requestAnimationFrame(rafTick);
+      }
+      requestAnimationFrame(rafTick);
+
+      // long task detection (optional)
+      try {
+        const obs = new PerformanceObserver((list) => {
+          for (const entry of list.getEntries()) {
+            if (entry.duration > 50)
+              stats.longTask = Math.round(entry.duration);
+          }
+        });
+        obs.observe({ entryTypes: ["longtask"] });
+      } catch (e) {
+        // ignore if not supported
+      }
+
+      // debug overlay removed for production / smoother visuals
 
       /* Thông điệp lần lượt */
       const messages = [
-        "He lô em, là anh quàng từ meo của em đây",
+        "He lô em, là anh quàng từ meo của em đây 🤴",
         "Trước đây, lúc chưa gặp em",
         "Cuộc đời anh chỉ toàn là drama và tiêu cực",
         "Từ ngày gặp được em, được trải nghiệm và đi nhiều nơi cùng em",
         "Các bức hình em đang thấy là những khoảnh khắc anh và em đã cùng nhau trải qua",
-        "Đoạn đường mình đi cũng đủ dài rồi, nhưng anh vẫn để em đợi 1 happy ending",
+        "Đoạn đường mình đi cũng đủ dài rồi, nhưng anh vẫn đang nợ em một happy ending như trong phim hàn quắc",
         "Anh biết để em có cảm giác mình phải đi hối anh cầu hôn là không đúng",
         "Anh pé xin lỗi vì đã để em phải chờ đợi",
-        "Anh chỉ muốn một điều duy nhất...",
+        "Thật ra lúc đó anh chỉ muốn chắc chắn rằng anh đã khắc phục đc mọi vấn đề trong mối quan hệ của tụi mình",
+        "Và đã chuẩn bị mọi thứ thật tốt cho bước ngoặc quan trọng này",
+        "Nhưng lúc em ngỏ lời, cũng là lúc anh nhận ra mình đã nhận ra...",
+        "Mình đã ích kỉ",
+        "Đã để em phải chờ đợi rồi",
+        "Anh pé xin lỗi vì điều đó",
+        "Vậy bây giờ, anh có một câu hỏi muốn hỏi em",
+        "Em sẽ cho anh cơ hội bù đắp và chăm sóc em cả đời chớ? 👰",
       ];
       let msgIndex = 0;
       const msgEl = document.getElementById("message");
@@ -223,8 +684,8 @@
           setTimeout(() => {
             msgEl.style.opacity = 0;
             msgIndex++;
-            setTimeout(showNextMessage, 1500);
-          }, 2500);
+            setTimeout(showNextMessage, 3000);
+          }, 4000);
         } else {
           document.querySelector(".question").style.display = "block";
         }
@@ -236,7 +697,8 @@
       const noBtn = document.getElementById("noBtn");
       const thankyou = document.querySelector(".thankyou");
       const catVideo = document.getElementById("catVideo");
-      const catClip = document.getElementById("catClip");
+      // the video element id in the HTML is "introVideo"; reference it here
+      const catClip = document.getElementById("introVideo");
 
       yesBtn.onclick = () => {
         document.querySelector(".question").style.display = "none";
@@ -253,7 +715,11 @@
       };
 
       noBtn.onclick = () => {
-        alert("Anh sẽ đợi đến khi em đổi ý 😢");
+        document.querySelector(".question").style.display = "none";
+        catVideo.style.display = "flex"; // show clip mèo
+        catClip.muted = false; // bật tiếng
+        catClip.currentTime = 0; // tua lại từ đầu
+        catClip.play();
       };
     </script>
   </body>
