@@ -21,7 +21,8 @@
         top: 40%;
         left: 50%;
         transform: translate(-50%, -50%);
-        font-size: 2em;
+        font-size: 40px;
+        width: 85%;
         z-index: 10;
         opacity: 0;
         transition: opacity 1s;
@@ -33,10 +34,11 @@
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        font-size: 1.6em;
+        font-size: 70px;
+        width: 75%;
         text-align: center;
         color: #fff;
-        padding: 35px 45px;
+        padding: 80px 45px;
         border-radius: 25px;
         background: linear-gradient(145deg, #1e1e2f, #2a2a3d);
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6),
@@ -569,7 +571,7 @@
         const base = preloaded[idx];
 
         // compute base size and scaled size (use for both canvas and DOM)
-        const size = 200;
+        const size = 300;
         const x = Math.round(col * colWidth + colWidth / 2 - size / 2);
         const dur = fallDuration + Math.floor(Math.random() * 1200) - 600;
 
