@@ -8,8 +8,9 @@
         margin: 0;
         padding: 0;
         overflow: hidden;
-        background: black;
-        color: white;
+        /* very pale pastel yellow (almost-white) */
+        background: #fdfd96;
+        color: #000080; /* dark text for contrast on light background */
         /* prefer emoji-capable fonts so emojis render correctly */
         font-family: "Segoe UI Emoji", "Noto Color Emoji", "Apple Color Emoji",
           "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -21,7 +22,8 @@
         top: 40%;
         left: 50%;
         transform: translate(-50%, -50%);
-        font-size: 40px;
+        font-size: 70px;
+        font-weight: 600;
         width: 85%;
         z-index: 10;
         opacity: 0;
@@ -35,6 +37,7 @@
         left: 50%;
         transform: translate(-50%, -50%);
         font-size: 70px;
+        font-weight: 600;
         width: 75%;
         text-align: center;
         color: #fff;
@@ -153,8 +156,9 @@
         justify-content: center;
       }
       .cat-video video {
-        max-width: 100%;
-        max-height: 100%;
+        width: 100%;
+        height: 100%;
+        object-fit: cover; /* fill the viewport while preserving aspect, crop if needed */
       }
 
       .thankyou {
@@ -166,16 +170,75 @@
         height: 100%;
         background: url("assets/cat-flower.jpg") center/cover no-repeat;
         color: white;
-        font-size: 3em;
+        font-size: 55px;
+        font-weight: 600;
         align-items: center;
         justify-content: center;
         text-shadow: 2px 2px 6px black;
         z-index: 20;
       }
+      /* subtle decorative hearts in background */
+      .hearts {
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        overflow: hidden;
+        z-index: 0;
+        /* ensure blobs sit behind content but above background */
+      }
+      /* soft blob style for background shapes */
+      .hearts .heart {
+        position: absolute;
+        /* size controlled by --heart-size */
+        width: var(--heart-size, 64px);
+        height: var(--heart-size, 64px);
+        background: currentColor;
+        transform: rotate(-45deg);
+        border-radius: 12px;
+        opacity: 0.95;
+        will-change: transform, opacity;
+        filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.06));
+      }
+      .hearts .heart::before,
+      .hearts .heart::after {
+        content: "";
+        position: absolute;
+        width: var(--heart-size, 64px);
+        height: var(--heart-size, 64px);
+        background: currentColor;
+        border-radius: 50%;
+      }
+      .hearts .heart::before {
+        top: -50%;
+        left: 0;
+      }
+      .hearts .heart::after {
+        left: 50%;
+        top: 0;
+      }
+
+      @keyframes floatHeart {
+        0% {
+          transform: translateY(0) translateX(0) rotate(-10deg);
+          opacity: 0.9;
+        }
+        50% {
+          transform: translateY(-18px) translateX(6px) rotate(-4deg);
+          opacity: 0.75;
+        }
+        100% {
+          transform: translateY(0) translateX(0) rotate(-10deg);
+          opacity: 0.9;
+        }
+      }
     </style>
   </head>
   <body>
     <div class="message" id="message"></div>
+    <div class="hearts" aria-hidden="true"></div>
 
     <div class="question">
       Em cưới anh nhoe 🧎
@@ -394,10 +457,11 @@
         loadingOverlay.style.display = "flex";
         loadingOverlay.style.alignItems = "center";
         loadingOverlay.style.justifyContent = "center";
-        loadingOverlay.style.background = "rgba(0,0,0,0.85)";
+        loadingOverlay.style.background = "#fdfd96";
         loadingOverlay.style.zIndex = "9998";
-        loadingOverlay.style.color = "#fff";
-        loadingOverlay.style.fontSize = "18px";
+        loadingOverlay.style.color = "#000080";
+        loadingOverlay.style.fontSize = "70px";
+        loadingOverlay.style.fontWeight = "600";
         loadingOverlay.innerText = "Em pé đợi một chút nha...🐱🐱🐱";
         document.body.appendChild(loadingOverlay);
         // fail-safe: start spawning after timeout even if not all assets ready
@@ -553,11 +617,38 @@
 
         // tìm cột hợp lệ (chưa spawn gần đây)
         let attempts = 0;
+        const maxAttempts = 12;
         do {
           col = Math.floor(Math.random() * numCols);
           attempts++;
-          if (attempts > 10) break; // fail-safe
-        } while (now - lastSpawnTime[col] < minInterval);
+          if (attempts > maxAttempts) break; // fail-safe
+          // ensure last spawn in this column isn't too recent
+          if (now - lastSpawnTime[col] < minInterval) continue;
+          // check horizontal proximity against existing canvas particles
+          const colX = Math.round(col * colWidth + colWidth / 2);
+          let tooClose = false;
+          for (const p of particles) {
+            const pxCenter = p.x + p.size / 2;
+            if (Math.abs(pxCenter - colX) < Math.max(80, p.size * 0.8)) {
+              tooClose = true;
+              break;
+            }
+          }
+          if (tooClose) continue;
+          // check active DOM wrappers positions
+          for (const w of pool) {
+            if (w.dataset.inUse === "1") {
+              const tx = parseInt(w.style.getPropertyValue("--tx")) || 0;
+              const wCenter = tx + (parseInt(w.style.width) || 200) / 2;
+              if (Math.abs(wCenter - colX) < 160) {
+                tooClose = true;
+                break;
+              }
+            }
+          }
+          if (tooClose) continue;
+          break;
+        } while (true);
 
         // respect max concurrent falling images
         if (activeCount >= maxActive) return;
@@ -742,11 +833,11 @@
         "Anh pé xin lỗi vì đã để em phải chờ đợi",
         "Thật ra lúc đó anh chỉ muốn chắc chắn rằng anh đã khắc phục đc mọi vấn đề trong mối quan hệ của tụi mình",
         "Và đã chuẩn bị mọi thứ thật tốt cho bước ngoặc quan trọng này",
-        "Nhưng lúc em ngỏ lời, cũng là lúc anh nhận ra mình đã nhận ra...",
+        "Nhưng lúc em đi tìm hiểu về tuổi cưới, cũng là lúc anh nhận ra mình đã nhận ra...",
         "Mình đã ích kỉ",
         "Đã để em phải chờ đợi rồi",
         "Anh pé xin lỗi vì điều đó",
-        "Vậy bây giờ, anh có một câu hỏi muốn hỏi em",
+        "Anh có một câu hỏi muốn hỏi em",
         "Em sẽ cho anh cơ hội bù đắp và chăm sóc em cả đời chớ? 👰",
       ];
       let msgIndex = 0;
@@ -759,8 +850,8 @@
           setTimeout(() => {
             msgEl.style.opacity = 0;
             msgIndex++;
-            setTimeout(showNextMessage, 3000);
-          }, 4000);
+            setTimeout(showNextMessage, 6000);
+          }, 6000);
         } else {
           document.querySelector(".question").style.display = "block";
         }
@@ -796,6 +887,83 @@
         catClip.currentTime = 0; // tua lại từ đầu
         catClip.play();
       };
+      // decorative background blobs (responsive, non-interactive)
+      (function createBackgroundBlobs() {
+        const container = document.querySelector(".hearts");
+        if (!container) return;
+
+        function build() {
+          container.textContent = ""; // clear
+          const vw = Math.max(320, window.innerWidth);
+          // on small screens, use fewer but larger blobs
+          const isNarrow = vw < 420;
+          // requested palette: purple, blue, pale pink
+          const colors = ["#d6b3ff", "#bfe9ff", "#ffe6f2"];
+          // create more hearts: higher minimums and denser distribution
+          const count = isNarrow
+            ? Math.max(6, Math.floor(vw / 160))
+            : Math.max(10, Math.floor(vw / 120));
+
+          // place hearts with simple rejection sampling to avoid overlaps
+          const placed = [];
+          const vh = Math.max(480, window.innerHeight);
+          const minAttempts = 12;
+          for (let i = 0; i < count; i++) {
+            const b = document.createElement("div");
+            b.className = "heart";
+            // size: larger on narrow screens
+            const base = isNarrow ? 64 : 40;
+            const randRange = isNarrow ? 64 : 72;
+            const size = base + Math.round(Math.random() * randRange);
+            b.style.setProperty("--heart-size", size + "px");
+            // choose position but avoid placing too close to existing hearts
+            let attempts = 0;
+            let leftPct, topPct, pxX, pxY, ok;
+            const minGap = Math.max(48, Math.round(size * 0.6));
+            do {
+              leftPct = Math.random() * 92;
+              topPct = Math.random() * 88;
+              pxX = (leftPct / 100) * vw;
+              pxY = (topPct / 100) * vh;
+              ok = true;
+              for (const p of placed) {
+                const dx = pxX - p.x;
+                const dy = pxY - p.y;
+                if (
+                  Math.hypot(dx, dy) < Math.max(minGap, (size + p.size) * 0.45)
+                ) {
+                  ok = false;
+                  break;
+                }
+              }
+              attempts++;
+            } while (!ok && attempts < minAttempts);
+            if (!ok) {
+              // couldn't find a non-overlapping spot; still place it but spread slightly
+              leftPct = Math.random() * 92;
+              topPct = Math.random() * 88;
+              pxX = (leftPct / 100) * vw;
+              pxY = (topPct / 100) * vh;
+            }
+            placed.push({ x: pxX, y: pxY, size });
+            b.style.left = Math.round(leftPct) + "%";
+            b.style.top = Math.round(topPct) + "%";
+            b.style.color = colors[Math.floor(Math.random() * colors.length)];
+            const dur = 6 + Math.random() * 8;
+            const delay = Math.random() * 3;
+            b.style.animation = `floatHeart ${dur}s ease-in-out ${delay}s infinite`;
+            container.appendChild(b);
+          }
+        }
+
+        build();
+        // debounce resize
+        let rt;
+        window.addEventListener("resize", () => {
+          clearTimeout(rt);
+          rt = setTimeout(build, 200);
+        });
+      })();
     </script>
   </body>
 </html>
