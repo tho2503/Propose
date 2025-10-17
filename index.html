@@ -274,9 +274,9 @@
     <button id="startBtn" class="start-btn">Em bấm vào đây để coi nè 🐱</button>
     <div class="hearts" aria-hidden="true"></div>
 
-    <!-- <audio id="bgm" preload="auto">
+    <audio id="bgm" preload="auto">
       <source src="assets/bensound-silentmoon.mp3" type="audio/mpeg" />
-    </audio> -->
+    </audio>
 
     <div class="question">
       Em cưới anh nhoe 🧎
@@ -302,48 +302,48 @@
 
     <script>
       const images = [
-        "./assets/Image (1).jfif",
-        "./assets/Image (2).jfif",
-        "./assets/Image (3).jfif",
-        "./assets/Image (4).jfif",
-        "./assets/Image (5).jfif",
-        "./assets/Image (6).jfif",
-        "./assets/Image (7).jfif",
-        "./assets/Image (8).jfif",
-        "./assets/Image (9).jfif",
-        "./assets/Image (10).jfif",
-        "./assets/Image (11).jfif",
-        "./assets/Image (12).jfif",
-        "./assets/Image (13).jfif",
-        "./assets/Image (14).jfif",
-        "./assets/Image (15).jfif",
-        "./assets/Image (16).jfif",
-        "./assets/Image (17).jfif",
-        "./assets/Image (18).jfif",
-        "./assets/Image (19).jfif",
-        "./assets/Image (20).jfif",
-        "./assets/Image (21).jfif",
-        "./assets/Image (22).jfif",
-        "./assets/Image (23).jfif",
-        "./assets/Image (24).jfif",
-        "./assets/Image (25).jfif",
-        "./assets/Image (26).jfif",
-        "./assets/Image (27).jfif",
-        "./assets/Image (28).jfif",
-        "./assets/Image (29).jfif",
-        "./assets/Image (30).jfif",
-        "./assets/Image (31).jfif",
-        "./assets/Image (32).jfif",
-        "./assets/Image (33).jfif",
-        "./assets/Image (34).jfif",
-        "./assets/Image (35).jfif",
-        "./assets/Image (36).jfif",
-        "./assets/Image (37).jfif",
-        "./assets/Image (38).jfif",
-        "./assets/Image (39).jfif",
-        "./assets/Image (40).jfif",
-        "./assets/Image (41).jfif",
-        "./assets/Image.jfif",
+        "assets/Image (1).jfif",
+        "assets/Image (2).jfif",
+        "assets/Image (3).jfif",
+        "assets/Image (4).jfif",
+        "assets/Image (5).jfif",
+        "assets/Image (6).jfif",
+        "assets/Image (7).jfif",
+        "assets/Image (8).jfif",
+        "assets/Image (9).jfif",
+        "assets/Image (10).jfif",
+        "assets/Image (11).jfif",
+        "assets/Image (12).jfif",
+        "assets/Image (13).jfif",
+        "assets/Image (14).jfif",
+        "assets/Image (15).jfif",
+        "assets/Image (16).jfif",
+        "assets/Image (17).jfif",
+        "assets/Image (18).jfif",
+        "assets/Image (19).jfif",
+        "assets/Image (20).jfif",
+        "assets/Image (21).jfif",
+        "assets/Image (22).jfif",
+        "assets/Image (23).jfif",
+        "assets/Image (24).jfif",
+        "assets/Image (25).jfif",
+        "assets/Image (26).jfif",
+        "assets/Image (27).jfif",
+        "assets/Image (28).jfif",
+        "assets/Image (29).jfif",
+        "assets/Image (30).jfif",
+        "assets/Image (31).jfif",
+        "assets/Image (32).jfif",
+        "assets/Image (33).jfif",
+        "assets/Image (34).jfif",
+        "assets/Image (35).jfif",
+        "assets/Image (36).jfif",
+        "assets/Image (37).jfif",
+        "assets/Image (38).jfif",
+        "assets/Image (39).jfif",
+        "assets/Image (40).jfif",
+        "assets/Image (41).jfif",
+        "assets/Image.jfif",
       ];
 
       const numCols = 5; // chia màn hình thành 8 cột
@@ -900,15 +900,15 @@
 
         // scheduleNextSpawn(0);
 
-        // audio.currentTime = 0;
-        // audio
-        //   .play()
-        //   .then(() => {
-        //     document.getElementById("message").textContent = "Anh yêu em ❤️";
-        //   })
-        //   .catch((err) => {
-        //     console.log("Không thể phát nhạc:", err);
-        //   });
+        audio.currentTime = 0;
+        audio
+          .play()
+          .then(() => {
+            document.getElementById("message").textContent = "Anh yêu em ❤️";
+          })
+          .catch((err) => {
+            console.log("Không thể phát nhạc:", err);
+          });
 
         // requestAnimationFrame(rafTick);
         setTimeout(showNextMessage, 5000);
