@@ -69,6 +69,12 @@
         animation: popupFade 0.5s ease forwards;
         z-index: 10;
         letter-spacing: 0;
+        word-spacing: 0;
+        line-height: 1.2;
+        white-space: normal;
+        -webkit-text-size-adjust: 100%;
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
       }
 
       @keyframes popupFade {
@@ -297,7 +303,7 @@
     </audio>
 
     <div class="question">
-      Em cưới anh nhoe 🧎
+      Em làm vợ anh nha 🧎
       <div class="buttons">
         <button id="yesBtn">Em có</button>
         <button id="noBtn">Em kó</button>
@@ -984,8 +990,10 @@
 
       // khi clip mèo kết thúc -> hiện thankyou
       catClip.onended = () => {
-        catVideo.style.display = "none";
         thankyou.style.display = "flex";
+        setTimeout(() => {
+          catVideo.style.display = "none";
+        }, 500);
       };
 
       noBtn.onclick = () => {
