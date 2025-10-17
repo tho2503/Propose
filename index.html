@@ -436,6 +436,8 @@
         }
 
         function processQueue() {
+          console.log("processQueue", job.img);
+
           if (creatingBitmap) return;
           const job = bitmapQueue.shift();
           if (!job) return;
