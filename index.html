@@ -22,20 +22,31 @@
         text-align: center;
       }
 
+      .message-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        animation: fadeIn 1s ease-in-out;
+      }
+
       .message {
-        position: absolute;
-        top: 40%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        font-size: 27px;
-        font-weight: 600;
-        width: 85%;
-        z-index: 10;
-        opacity: 0;
-        transition: opacity 1s;
+        font-family: "Futura", sans-serif;
+        font-size: 22px;
+        text-align: center;
         letter-spacing: 0;
         word-spacing: 0;
-        text-align: center;
+        line-height: 1.4;
+        width: 100%;
+        max-width: 420px;
+        margin: 0 auto;
+        white-space: normal;
+        -webkit-text-size-adjust: 100%;
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
+        position: absolute;
+        z-index: 10;
+        font-weight: 600;
       }
 
       .question {
@@ -274,7 +285,10 @@
     </style>
   </head>
   <body>
-    <div class="message" id="message"></div>
+    <div class="message-container">
+      <div class="message" id="message"></div>
+    </div>
+
     <button id="startBtn" class="start-btn">Em bấm vào đây để coi nè 🐱</button>
     <div class="hearts" aria-hidden="true"></div>
 
@@ -513,6 +527,8 @@
         loadingOverlay.style.display = "flex";
         loadingOverlay.style.alignItems = "center";
         loadingOverlay.style.letterSpacing = "0";
+        loadingOverlay.style.wordSpacing = "0";
+        loadingOverlay.style.textAlign = "center";
         loadingOverlay.style.justifyContent = "center";
         loadingOverlay.style.background = "#fdfd96";
         loadingOverlay.style.zIndex = "9998";
@@ -918,9 +934,7 @@
         audio.currentTime = 0;
         audio
           .play()
-          .then(() => {
-            document.getElementById("message").textContent = "Anh yêu em ❤️";
-          })
+          .then(() => {})
           .catch((err) => {
             console.log("Không thể phát nhạc:", err);
           });
