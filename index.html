@@ -3,8 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <title>Edmund Nie</title>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
     <style>
       body {
+        -webkit-text-size-adjust: 100%;
         margin: 0;
         padding: 0;
         overflow: hidden;
@@ -22,7 +27,7 @@
         top: 40%;
         left: 50%;
         transform: translate(-50%, -50%);
-        font-size: 70px;
+        font-size: 27px;
         font-weight: 600;
         width: 85%;
         z-index: 10;
@@ -36,7 +41,7 @@
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        font-size: 70px;
+        font-size: 24px;
         font-weight: 600;
         width: 75%;
         text-align: center;
@@ -170,7 +175,7 @@
         height: 100%;
         background: url("assets/cat-flower.jpg") center/cover no-repeat;
         color: white;
-        font-size: 55px;
+        font-size: 26px;
         font-weight: 600;
         align-items: center;
         justify-content: center;
@@ -193,8 +198,8 @@
       .hearts .heart {
         position: absolute;
         /* size controlled by --heart-size */
-        width: var(--heart-size, 64px);
-        height: var(--heart-size, 64px);
+        width: var(--heart-size, 20px);
+        height: var(--heart-size, 20px);
         background: currentColor;
         transform: rotate(-45deg);
         border-radius: 12px;
@@ -206,8 +211,8 @@
       .hearts .heart::after {
         content: "";
         position: absolute;
-        width: var(--heart-size, 64px);
-        height: var(--heart-size, 64px);
+        width: var(--heart-size, 20px);
+        height: var(--heart-size, 20px);
         background: currentColor;
         border-radius: 50%;
       }
@@ -241,7 +246,7 @@
         left: 50%;
         transform: translate(-50%, -50%);
         padding: 18px 36px;
-        font-size: 50px;
+        font-size: 18px;
         width: max-content;
         background-color: #ffb6c1;
         border: none;
@@ -493,7 +498,7 @@
         loadingOverlay.style.background = "#fdfd96";
         loadingOverlay.style.zIndex = "9998";
         loadingOverlay.style.color = "#000080";
-        loadingOverlay.style.fontSize = "70px";
+        loadingOverlay.style.fontSize = "20px";
         loadingOverlay.style.fontWeight = "600";
         loadingOverlay.innerText = "Em pé đợi một chút nha...🐱🐱🐱";
         document.body.appendChild(loadingOverlay);
@@ -698,7 +703,7 @@
         const base = preloaded[idx];
 
         // compute base size and scaled size (use for both canvas and DOM)
-        const size = 300;
+        const size = 120;
         const x = Math.round(col * colWidth + colWidth / 2 - size / 2);
         const dur = fallDuration + Math.floor(Math.random() * 1200) - 600;
 
@@ -968,7 +973,7 @@
             const b = document.createElement("div");
             b.className = "heart";
             // size: larger on narrow screens
-            const base = isNarrow ? 64 : 40;
+            const base = isNarrow ? 24 : 20;
             const randRange = isNarrow ? 64 : 72;
             const size = base + Math.round(Math.random() * randRange);
             b.style.setProperty("--heart-size", size + "px");
