@@ -2,7 +2,7 @@
 <html lang="vi">
   <head>
     <meta charset="UTF-8" />
-    <title>Cầu hôn</title>
+    <title>Edmund Nie</title>
     <style>
       body {
         margin: 0;
@@ -234,11 +234,47 @@
           opacity: 0.9;
         }
       }
+
+      .start-btn {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        padding: 18px 36px;
+        font-size: 24px;
+        background-color: #ffb6c1;
+        border: none;
+        border-radius: 30px;
+        cursor: pointer;
+        font-weight: 600;
+        color: #fff;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        transition: transform 0.2s, background-color 0.2s;
+        z-index: 9999;
+      }
+
+      .start-btn:hover {
+        background-color: #ff9eb0;
+        transform: translate(-50%, -50%) scale(1.05);
+      }
+
+      .start-btn.hidden {
+        display: none;
+      }
     </style>
   </head>
   <body>
     <div class="message" id="message"></div>
+    <button id="startBtn" class="start-btn">Em bấm vào đây để coi nè 🐱</button>
     <div class="hearts" aria-hidden="true"></div>
+
+    <audio
+      id="bgMusic"
+      src="/assets/bensound-silentmoon.mp3"
+      preload="auto"
+      loop
+      hidden
+    ></audio>
 
     <div class="question">
       Em cưới anh nhoe 🧎
@@ -490,7 +526,10 @@
             });
           } catch (e) {}
           // begin spawn scheduler immediately if not already started
-          scheduleNextSpawn(0);
+          // scheduleNextSpawn(0);
+
+          const startBtn = document.getElementById("startBtn");
+          startBtn.classList.remove("hidden");
         }
       }
 
@@ -804,7 +843,6 @@
         }
         requestAnimationFrame(rafTick);
       }
-      requestAnimationFrame(rafTick);
 
       // long task detection (optional)
       try {
@@ -843,6 +881,19 @@
       let msgIndex = 0;
       const msgEl = document.getElementById("message");
 
+      const startBtn = document.getElementById("startBtn");
+      startBtn.classList.add("hidden");
+
+      startBtn.addEventListener("click", () => {
+        startBtn.classList.add("hidden");
+        const music = document.getElementById("bgMusic");
+        music
+          .play()
+          .catch(() => console.log("Trình duyệt chặn tự động phát nhạc"));
+        requestAnimationFrame(rafTick);
+        setTimeout(showNextMessage, 5000);
+      });
+
       function showNextMessage() {
         if (msgIndex < messages.length) {
           msgEl.textContent = messages[msgIndex];
@@ -856,7 +907,7 @@
           document.querySelector(".question").style.display = "block";
         }
       }
-      setTimeout(showNextMessage, 7000);
+      // setTimeout(showNextMessage, 7000);
 
       /* Nút */
       const yesBtn = document.getElementById("yesBtn");
