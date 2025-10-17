@@ -437,8 +437,8 @@
 
         function processQueue() {
           if (creatingBitmap) return;
-          const job = bitmapQueue.shift();
           console.log("processQueue", bitmapQueue);
+          const job = bitmapQueue.shift();
           if (!job) return;
           creatingBitmap = true;
           createDownscaledBitmap(job.img)
@@ -468,6 +468,7 @@
           img._loaded = false;
           img.onload = () => {
             img._loaded = true;
+            console.log("bitmapQueue", img);
             bitmapQueue.push({ img });
             // try to kick off one job
             setTimeout(processQueue, 0);
@@ -515,8 +516,6 @@
           // abort any remaining preloaded image requests to stop browser loading indicator
           try {
             preloaded.forEach((img) => {
-              console.log(img.src);
-
               if (!img._loaded && img.src) {
                 img.onload = null;
                 img.onerror = null;
@@ -731,7 +730,6 @@
         // DOM fallback: assign to wrapper's inner img
         const imgEl = wrapper.querySelector("img");
         imgEl.src = "https://tho2503.github.io/Propose/" + base.src;
-        console.log(base.src);
 
         imgEl.style.borderRadius = 10 + "px";
         // position via CSS variable and set absolute size (no scale to avoid distortion)
