@@ -365,10 +365,10 @@
       let createdCount = 0;
       const totalImages = preloaded.length;
       // threshold: start when either X bitmaps ready or all images done
-      const readyThreshold = Math.min(
-        totalImages,
-        Math.max(6, Math.floor(totalImages * 0.5))
-      );
+      // const readyThreshold = Math.min(
+      //   totalImages,
+      //   Math.max(6, Math.floor(totalImages * 0.5))
+      // );
       let assetsReady = false;
 
       const useCanvasRenderer = !!window.createImageBitmap;
@@ -484,7 +484,7 @@
             img._loaded = true;
             // count as processed so failures don't stall readiness
             createdCount++;
-            if (!assetsReady && createdCount >= readyThreshold) {
+            if (!assetsReady) {
               assetsReady = true;
               loadedImages++;
               checkAllLoaded();
