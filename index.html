@@ -466,6 +466,8 @@
             });
         }
 
+        let loadedImages = 0;
+
         // enqueue create jobs when images load (but don't create immediately all at once)
         preloaded.forEach((img) => {
           img._loaded = false;
@@ -475,6 +477,8 @@
             bitmapQueue.push({ img });
             // try to kick off one job
             setTimeout(processQueue, 0);
+            loadedImages++;
+            checkAllLoaded();
           };
           img.onerror = () => {
             img._loaded = true;
@@ -482,10 +486,20 @@
             createdCount++;
             if (!assetsReady && createdCount >= readyThreshold) {
               assetsReady = true;
-              startSpawning();
+              loadedImages++;
+              checkAllLoaded();
             }
           };
         });
+
+        function checkAllLoaded() {
+          // Khi tất cả ảnh đã xử lý (dù load thành công hay lỗi)
+          if (!assetsReady && loadedImages >= totalImages) {
+            assetsReady = true;
+            startSpawning();
+          }
+        }
+
         // Loading overlay
         const loadingOverlay = document.createElement("div");
         loadingOverlay.style.position = "fixed";
@@ -504,18 +518,18 @@
         loadingOverlay.innerText = "Em pé đợi một chút nha...🐱🐱🐱";
         document.body.appendChild(loadingOverlay);
         // fail-safe: start spawning after timeout even if not all assets ready
-        const startFailTimeout = setTimeout(() => {
-          if (!assetsReady) {
-            assetsReady = true;
-            startSpawning();
-          }
-        }, 30000);
+        // const startFailTimeout = setTimeout(() => {
+        //   if (!assetsReady) {
+        //     assetsReady = true;
+        //     startSpawning();
+        //   }
+        // }, 100000);
         function startSpawning() {
           // remove overlay
           try {
             loadingOverlay.remove();
           } catch (e) {}
-          clearTimeout(startFailTimeout);
+          // clearTimeout(startFailTimeout);
           // abort any remaining preloaded image requests to stop browser loading indicator
           try {
             preloaded.forEach((img) => {
