@@ -438,8 +438,8 @@
         function processQueue() {
           if (creatingBitmap) return;
           const job = bitmapQueue.shift();
+          console.log("processQueue", bitmapQueue);
           if (!job) return;
-          console.log("processQueue", job.img);
           creatingBitmap = true;
           createDownscaledBitmap(job.img)
             .then((bmpOrCanvas) => {
