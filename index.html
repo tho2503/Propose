@@ -34,6 +34,7 @@
         opacity: 0;
         transition: opacity 1s;
         letter-spacing: 0;
+        text-align: center;
       }
 
       .question {
@@ -55,6 +56,7 @@
         border: 2px solid rgba(255, 255, 255, 0.1);
         animation: popupFade 0.5s ease forwards;
         z-index: 10;
+        letter-spacing: 0;
       }
 
       @keyframes popupFade {
@@ -509,6 +511,7 @@
         loadingOverlay.style.height = "100%";
         loadingOverlay.style.display = "flex";
         loadingOverlay.style.alignItems = "center";
+        loadingOverlay.style.letterSpacing = "0";
         loadingOverlay.style.justifyContent = "center";
         loadingOverlay.style.background = "#fdfd96";
         loadingOverlay.style.zIndex = "9998";
