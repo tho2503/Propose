@@ -112,7 +112,7 @@
 
       button {
         padding: 10px 20px;
-        font-size: 1.2em;
+        font-size: 20px;
         margin: 0 10px;
         cursor: pointer;
       }
@@ -533,7 +533,7 @@
             });
           } catch (e) {}
           // begin spawn scheduler immediately if not already started
-          // scheduleNextSpawn(0);
+          scheduleNextSpawn(0);
 
           const startBtn = document.getElementById("startBtn");
           startBtn.classList.remove("hidden");
@@ -737,6 +737,8 @@
         // DOM fallback: assign to wrapper's inner img
         const imgEl = wrapper.querySelector("img");
         imgEl.src = base.src;
+        console.log(base.src);
+
         imgEl.style.borderRadius = 10 + "px";
         // position via CSS variable and set absolute size (no scale to avoid distortion)
         wrapper.style.width = size + "px";
@@ -850,6 +852,7 @@
         }
         requestAnimationFrame(rafTick);
       }
+      requestAnimationFrame(rafTick);
 
       // long task detection (optional)
       try {
@@ -895,7 +898,7 @@
       startBtn.addEventListener("click", () => {
         startBtn.classList.add("hidden");
 
-        scheduleNextSpawn(0);
+        // scheduleNextSpawn(0);
 
         audio.currentTime = 0;
         audio
@@ -907,7 +910,7 @@
             console.log("Không thể phát nhạc:", err);
           });
 
-        requestAnimationFrame(rafTick);
+        // requestAnimationFrame(rafTick);
         setTimeout(showNextMessage, 5000);
       });
 
