@@ -361,6 +361,8 @@
       const bitmaps = [];
       const preloaded = images.map((src) => {
         const i = new Image();
+        console.log(src);
+
         i.src = src;
         i.decoding = "async";
         return i;
