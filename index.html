@@ -5,7 +5,7 @@
     <title>Edmund Nie</title>
     <meta
       name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
     />
     <style>
       body {
@@ -33,6 +33,7 @@
         z-index: 10;
         opacity: 0;
         transition: opacity 1s;
+        letter-spacing: 0;
       }
 
       .question {
@@ -352,6 +353,8 @@
         const i = new Image();
         i.src = src;
         i.decoding = "async";
+        console.log(preloaded, src);
+
         return i;
       });
       // target max bitmap size can be tuned; reduce on mobile
