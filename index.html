@@ -436,11 +436,10 @@
         }
 
         function processQueue() {
-          console.log("processQueue", job.img);
-
           if (creatingBitmap) return;
           const job = bitmapQueue.shift();
           if (!job) return;
+          console.log("processQueue", job.img);
           creatingBitmap = true;
           createDownscaledBitmap(job.img)
             .then((bmpOrCanvas) => {
@@ -731,7 +730,7 @@
 
         // DOM fallback: assign to wrapper's inner img
         const imgEl = wrapper.querySelector("img");
-        imgEl.src = base.src;
+        imgEl.src = "https://tho2503.github.io/Propose/" + base.src;
         console.log(base.src);
 
         imgEl.style.borderRadius = 10 + "px";
