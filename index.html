@@ -46,7 +46,7 @@
         width: 75%;
         text-align: center;
         color: #fff;
-        padding: 80px 45px;
+        padding: 20px 10px;
         border-radius: 25px;
         background: linear-gradient(145deg, #1e1e2f, #2a2a3d);
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6),
@@ -75,7 +75,7 @@
       }
 
       button {
-        font-size: 1.2em;
+        font-size: 20px;
         padding: 14px 28px;
         border: none;
         border-radius: 14px;
@@ -302,48 +302,48 @@
 
     <script>
       const images = [
-        "assets/Image (1).jfif",
-        "assets/Image (2).jfif",
-        "assets/Image (3).jfif",
-        "assets/Image (4).jfif",
-        "assets/Image (5).jfif",
-        "assets/Image (6).jfif",
-        "assets/Image (7).jfif",
-        "assets/Image (8).jfif",
-        "assets/Image (9).jfif",
-        "assets/Image (10).jfif",
-        "assets/Image (11).jfif",
-        "assets/Image (12).jfif",
-        "assets/Image (13).jfif",
-        "assets/Image (14).jfif",
-        "assets/Image (15).jfif",
-        "assets/Image (16).jfif",
-        "assets/Image (17).jfif",
-        "assets/Image (18).jfif",
-        "assets/Image (19).jfif",
-        "assets/Image (20).jfif",
-        "assets/Image (21).jfif",
-        "assets/Image (22).jfif",
-        "assets/Image (23).jfif",
-        "assets/Image (24).jfif",
-        "assets/Image (25).jfif",
-        "assets/Image (26).jfif",
-        "assets/Image (27).jfif",
-        "assets/Image (28).jfif",
-        "assets/Image (29).jfif",
-        "assets/Image (30).jfif",
-        "assets/Image (31).jfif",
-        "assets/Image (32).jfif",
-        "assets/Image (33).jfif",
-        "assets/Image (34).jfif",
-        "assets/Image (35).jfif",
-        "assets/Image (36).jfif",
-        "assets/Image (37).jfif",
-        "assets/Image (38).jfif",
-        "assets/Image (39).jfif",
-        "assets/Image (40).jfif",
-        "assets/Image (41).jfif",
-        "assets/Image.jfif",
+        "./assets/Image (1).jfif",
+        "./assets/Image (2).jfif",
+        "./assets/Image (3).jfif",
+        "./assets/Image (4).jfif",
+        "./assets/Image (5).jfif",
+        "./assets/Image (6).jfif",
+        "./assets/Image (7).jfif",
+        "./assets/Image (8).jfif",
+        "./assets/Image (9).jfif",
+        "./assets/Image (10).jfif",
+        "./assets/Image (11).jfif",
+        "./assets/Image (12).jfif",
+        "./assets/Image (13).jfif",
+        "./assets/Image (14).jfif",
+        "./assets/Image (15).jfif",
+        "./assets/Image (16).jfif",
+        "./assets/Image (17).jfif",
+        "./assets/Image (18).jfif",
+        "./assets/Image (19).jfif",
+        "./assets/Image (20).jfif",
+        "./assets/Image (21).jfif",
+        "./assets/Image (22).jfif",
+        "./assets/Image (23).jfif",
+        "./assets/Image (24).jfif",
+        "./assets/Image (25).jfif",
+        "./assets/Image (26).jfif",
+        "./assets/Image (27).jfif",
+        "./assets/Image (28).jfif",
+        "./assets/Image (29).jfif",
+        "./assets/Image (30).jfif",
+        "./assets/Image (31).jfif",
+        "./assets/Image (32).jfif",
+        "./assets/Image (33).jfif",
+        "./assets/Image (34).jfif",
+        "./assets/Image (35).jfif",
+        "./assets/Image (36).jfif",
+        "./assets/Image (37).jfif",
+        "./assets/Image (38).jfif",
+        "./assets/Image (39).jfif",
+        "./assets/Image (40).jfif",
+        "./assets/Image (41).jfif",
+        "./assets/Image.jfif",
       ];
 
       const numCols = 5; // chia màn hình thành 8 cột
@@ -359,9 +359,10 @@
       // preload images to avoid decoding work at spawn time
       // try to use createImageBitmap (best) and fall back to Image elements
       const bitmaps = [];
+      const baseUrl = "https://tho2503.github.io/Propose/";
       const preloaded = images.map((src) => {
         const i = new Image();
-        console.log(src);
+        // console.log(baseUrl + src);
 
         i.src = src;
         i.decoding = "async";
@@ -520,6 +521,8 @@
           // abort any remaining preloaded image requests to stop browser loading indicator
           try {
             preloaded.forEach((img) => {
+              console.log(img.src);
+
               if (!img._loaded && img.src) {
                 img.onload = null;
                 img.onerror = null;
