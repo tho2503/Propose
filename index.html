@@ -421,11 +421,15 @@
               if (typeof createImageBitmap === "function") {
                 createImageBitmap(c)
                   .then(resolve)
-                  .catch(() => resolve(c));
+                  .catch((e) => {
+                    console.log(e);
+                    resolve(c);
+                  });
               } else {
                 resolve(c);
               }
             } catch (err) {
+              console.log(e);
               reject(err);
             }
           });
@@ -447,8 +451,9 @@
                 startSpawning();
               }
             })
-            .catch(() => {
+            .catch((e) => {
               // ignore failures
+              console.log(e);
             })
             .finally(() => {
               creatingBitmap = false;
