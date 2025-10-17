@@ -274,9 +274,9 @@
     <button id="startBtn" class="start-btn">Em bấm vào đây để coi nè 🐱</button>
     <div class="hearts" aria-hidden="true"></div>
 
-    <audio id="bgm" preload="auto">
+    <!-- <audio id="bgm" preload="auto">
       <source src="assets/bensound-silentmoon.mp3" type="audio/mpeg" />
-    </audio>
+    </audio> -->
 
     <div class="question">
       Em cưới anh nhoe 🧎
@@ -900,15 +900,15 @@
 
         // scheduleNextSpawn(0);
 
-        audio.currentTime = 0;
-        audio
-          .play()
-          .then(() => {
-            document.getElementById("message").textContent = "Anh yêu em ❤️";
-          })
-          .catch((err) => {
-            console.log("Không thể phát nhạc:", err);
-          });
+        // audio.currentTime = 0;
+        // audio
+        //   .play()
+        //   .then(() => {
+        //     document.getElementById("message").textContent = "Anh yêu em ❤️";
+        //   })
+        //   .catch((err) => {
+        //     console.log("Không thể phát nhạc:", err);
+        //   });
 
         // requestAnimationFrame(rafTick);
         setTimeout(showNextMessage, 5000);
