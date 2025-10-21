@@ -996,12 +996,20 @@
         }, 500);
       };
 
-      noBtn.onclick = () => {
+      noBtn.onclick = async () => {
         document.querySelector(".question").style.display = "none";
-        catVideo.style.display = "flex"; // show clip mèo
-        catClip.muted = false; // bật tiếng
-        catClip.currentTime = 0; // tua lại từ đầu
-        catClip.play();
+        if (catClip.readyState < 3) {
+          // < 3 nghĩa là chưa buffer đủ để play
+          await catClip.play().catch(() => {}); // play muted để Safari preload
+          catClip.pause(); // rồi dừng lại
+        }
+
+        catVideo.style.opacity = "1";
+        catVideo.style.visibility = "visible";
+
+        catClip.muted = false;
+        catClip.currentTime = 0;
+        catClip.play().catch((err) => console.warn("Video play error:", err));
       };
       // decorative background blobs (responsive, non-interactive)
       (function createBackgroundBlobs() {
